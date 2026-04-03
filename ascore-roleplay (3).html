@@ -1,0 +1,1493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
+<title>Dealer Conversation Simulator | UACC Sales Training</title>
+<link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --primary-dark: #043474;
+  --primary-mid: #0C438D;
+  --primary-black: #041022;
+  --gray-mid: #6C717A;
+  --gray-light: #D6D7DA;
+  --white: #FFFFFF;
+  --secondary-teal: #137FAA;
+  --secondary-blue: #23B1E7;
+  --secondary-light: #DCF2FB;
+  --accent-gold: #AC6502;
+  --accent-amber: #FD9F1B;
+  --accent-red: #D6030A;
+  --accent-red-mid: #FC4349;
+  --accent-green: #008540;
+  --accent-green-mid: #00A651;
+  --hero-gradient: radial-gradient(ellipse at 0% 0%, #7c99bb 0%, transparent 60%),
+                   radial-gradient(ellipse at 55% 0%, #e49ba6 0%, transparent 50%),
+                   radial-gradient(ellipse at 100% 0%, #af677f 0%, transparent 45%),
+                   radial-gradient(ellipse at 0% 100%, #11538f 0%, transparent 55%),
+                   radial-gradient(ellipse at 55% 100%, #3fafdf 0%, transparent 55%),
+                   radial-gradient(ellipse at 100% 100%, #2bb3e7 0%, transparent 50%),
+                   radial-gradient(ellipse at 100% 50%, #4993c2 0%, transparent 45%),
+                   #a1b7cf;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html {
+  font-size: 18px;
+}
+
+body {
+  font-family: 'Source Sans Pro', sans-serif;
+  background: #f4f6f9;
+  color: var(--primary-black);
+  min-height: 100vh;
+  overflow-x: hidden;
+  font-size: 18px;
+}
+
+/* Center wrapper for scenario + summary screens */
+.page-wrap {
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* ── HERO ── */
+.hero {
+  padding: 44px 40px 36px;
+  background: var(--hero-gradient);
+}
+.hero-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #ffffff;
+  border: 1px solid rgba(255,255,255,0.8);
+  border-radius: 20px;
+  padding: 5px 14px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--primary-dark);
+  margin-bottom: 14px;
+  box-shadow: 0 2px 8px rgba(4,16,34,0.12);
+}
+.hero h1 { font-size: 44px; font-weight: 700; line-height: 52px; color: #ffffff; margin-bottom: 10px; }
+.hero p { font-size: 18px; line-height: 28px; color: rgba(255,255,255,0.85); max-width: 520px; }
+.hero-stats { display: flex; gap: 16px; flex-wrap: wrap; align-items: flex-start; }
+.stat-card {
+  background: var(--primary-dark);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 12px;
+  padding: 14px 20px;
+  text-align: center;
+  min-width: 90px;
+  box-shadow: 0 4px 16px rgba(4,16,34,0.25);
+}
+.stat-card .num { font-size: 26px; font-weight: 700; color: #ffffff; line-height: 1; margin-bottom: 4px; }
+.stat-card .lbl { font-size: 11px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; color: rgba(255,255,255,0.6); }
+
+/* ── SCENARIO SCREEN ── */
+#scenario-screen { padding: 40px; background: #f4f6f9; }
+.section-label {
+  font-size: 12px; font-weight: 700; letter-spacing: 1px;
+  text-transform: uppercase; color: var(--primary-mid); margin-bottom: 22px;
+}
+.scenario-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 22px;
+}
+.scenario-card {
+  background: #fff;
+  border: 1px solid var(--gray-light);
+  border-radius: 16px;
+  padding: 28px 28px 22px;
+  cursor: pointer;
+  transition: all 0.22s ease;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(4,16,34,0.06);
+  display: flex;
+  flex-direction: column;
+}
+.scenario-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; border-radius: 16px 16px 0 0;
+}
+.scenario-card.easy::before   { background: var(--accent-green-mid); }
+.scenario-card.medium::before { background: var(--accent-amber); }
+.scenario-card.hard::before   { background: var(--accent-red-mid); }
+.scenario-card:hover { border-color: var(--secondary-blue); transform: translateY(-3px); box-shadow: 0 10px 28px rgba(4,52,116,0.12); }
+
+/* Progress ring on card */
+.card-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+.card-progress-ring { flex-shrink: 0; }
+.ring-svg { transform: rotate(-90deg); }
+.ring-bg { fill: none; stroke: var(--gray-light); stroke-width: 3; }
+.ring-fill { fill: none; stroke-width: 3; stroke-linecap: round; transition: stroke-dashoffset 0.6s ease; }
+.ring-label { font-size: 9px; font-weight: 700; fill: var(--gray-mid); text-anchor: middle; dominant-baseline: middle; transform: rotate(90deg); transform-origin: 18px 18px; }
+.ring-score { font-size: 10px; font-weight: 700; text-anchor: middle; dominant-baseline: middle; transform: rotate(90deg); transform-origin: 18px 18px; }
+
+.diff-badge {
+  display: inline-flex; align-items: center; gap: 5px; padding: 4px 11px;
+  border-radius: 20px; font-size: 12px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase;
+}
+.diff-badge.easy   { background: rgba(0,133,64,0.09);  color: var(--accent-green); border: 1px solid rgba(0,133,64,0.22); }
+.diff-badge.medium { background: rgba(172,101,2,0.09); color: var(--accent-gold);  border: 1px solid rgba(172,101,2,0.22); }
+.diff-badge.hard   { background: rgba(214,3,10,0.07);  color: var(--accent-red);   border: 1px solid rgba(214,3,10,0.18); }
+.scenario-card h3  { font-size: 22px; font-weight: 700; line-height: 28px; color: var(--primary-black); margin-bottom: 8px; }
+.scenario-card .desc { font-size: 15px; line-height: 23px; color: var(--gray-mid); margin-bottom: 16px; flex: 1; }
+.scenario-meta { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 4px; }
+.meta-item { display: flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 600; color: #9ea4ad; }
+
+/* Scenario status badge */
+.card-status {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 12px; font-weight: 700; padding: 4px 10px;
+  border-radius: 20px; margin-top: 12px; width: fit-content;
+}
+.status-new    { background: rgba(108,113,122,0.1); color: var(--gray-mid);   border: 1px solid rgba(108,113,122,0.2); }
+.status-strong { background: rgba(0,133,64,0.09);   color: var(--accent-green); border: 1px solid rgba(0,133,64,0.22); }
+.status-mid    { background: rgba(172,101,2,0.09);  color: var(--accent-gold);  border: 1px solid rgba(172,101,2,0.22); }
+.status-low    { background: rgba(214,3,10,0.07);   color: var(--accent-red);   border: 1px solid rgba(214,3,10,0.18); }
+
+.start-btn {
+  margin-top: 16px; width: 100%; padding: 13px;
+  background: linear-gradient(135deg, var(--primary-mid), var(--secondary-teal));
+  border: none; border-radius: 10px; color: var(--white);
+  font-family: 'Source Sans Pro', sans-serif; font-size: 15px; font-weight: 700;
+  letter-spacing: 0.5px; cursor: pointer; transition: opacity 0.2s;
+}
+.start-btn:hover { opacity: 0.85; }
+
+/* ── ROLEPLAY SCREEN ── */
+#roleplay-screen { display: none; flex-direction: column; height: 100vh; }
+.rp-header {
+  padding: 0;
+  background: var(--primary-dark);
+  flex-shrink: 0;
+}
+.rp-header-inner {
+  display: flex; align-items: center; gap: 14px;
+  padding: 16px 28px;
+}
+.dealer-avatar {
+  width: 40px; height: 40px; border-radius: 50%;
+  background: var(--secondary-blue);
+  border: 2px solid rgba(255,255,255,0.25);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 15px; font-weight: 700; color: #ffffff; flex-shrink: 0;
+}
+.dealer-info h4 { font-size: 15px; font-weight: 700; color: #ffffff; }
+.dealer-info p  { font-size: 12px; color: rgba(255,255,255,0.65); margin-top: 1px; }
+.rp-header-actions { margin-left: auto; display: flex; gap: 10px; }
+.icon-btn {
+  background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.25);
+  border-radius: 8px; color: #ffffff;
+  padding: 7px 14px; font-size: 12px; font-weight: 600;
+  cursor: pointer; font-family: 'Source Sans Pro', sans-serif; transition: all 0.2s;
+}
+.icon-btn:hover { background: rgba(255,255,255,0.2); }
+.icon-btn.danger { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.25); color: #ffffff; }
+.icon-btn.danger:hover { background: rgba(255,255,255,0.2); }
+
+/* Scenario brief bar */
+.brief-bar {
+  background: #f4f6f9;
+  border-top: 1px solid var(--gray-light);
+  padding: 12px 28px;
+  display: flex; gap: 24px; align-items: flex-start; flex-wrap: wrap;
+}
+.brief-bar-item { display: flex; flex-direction: column; gap: 2px; }
+.brief-bar-label { font-size: 11px; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; color: var(--gray-mid); }
+.brief-bar-value { font-size: 14px; font-weight: 600; color: var(--primary-dark); max-width: 340px; line-height: 20px; }
+
+/* Main body: chat + sidebar */
+.rp-body {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  flex: 1;
+  overflow: hidden;
+  background: #fff;
+}
+
+/* Chat panel */
+.chat-panel { display: flex; flex-direction: column; background: #fff; overflow: hidden; border-right: 1px solid var(--gray-light); }
+.chat-messages {
+  flex: 1; overflow-y: auto; padding: 24px 28px;
+  display: flex; flex-direction: column; gap: 18px;
+  scroll-behavior: smooth;
+}
+.chat-messages::-webkit-scrollbar { width: 4px; }
+.chat-messages::-webkit-scrollbar-thumb { background: var(--gray-light); border-radius: 4px; }
+
+.msg { display: flex; gap: 10px; max-width: 80%; animation: msgIn 0.3s ease; }
+@keyframes msgIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+.msg.dealer { align-self: flex-start; }
+.msg.rep    { align-self: flex-end; flex-direction: row-reverse; }
+.msg-avatar {
+  width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700;
+}
+.msg.dealer .msg-avatar { background: linear-gradient(135deg, var(--primary-mid), var(--secondary-teal)); color: #fff; }
+.msg.rep    .msg-avatar { background: linear-gradient(135deg, #2d6a4f, #40916c); color: #fff; }
+.msg-bubble { padding: 13px 17px; border-radius: 16px; font-size: 16px; line-height: 25px; }
+.msg.dealer .msg-bubble {
+  background: rgba(12,67,141,0.08); border: 1px solid rgba(12,67,141,0.12);
+  color: var(--primary-black); border-top-left-radius: 4px;
+}
+.msg.rep .msg-bubble {
+  background: rgba(0,133,64,0.08); border: 1px solid rgba(0,133,64,0.15);
+  color: var(--primary-black); border-top-right-radius: 4px;
+}
+.msg-label { font-size: 11px; font-weight: 600; letter-spacing: 0.3px; margin-bottom: 4px; }
+.msg.dealer .msg-label { color: var(--secondary-teal); }
+.msg.rep    .msg-label { color: var(--accent-green); text-align: right; }
+
+.typing-indicator {
+  display: none; align-self: flex-start; padding: 10px 14px;
+  background: rgba(12,67,141,0.08); border: 1px solid rgba(12,67,141,0.12);
+  border-radius: 16px; border-top-left-radius: 4px;
+}
+.typing-dots { display: flex; gap: 4px; }
+.typing-dots span {
+  width: 6px; height: 6px; background: var(--secondary-blue);
+  border-radius: 50%; animation: dot 1.2s infinite;
+}
+.typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+.typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+@keyframes dot { 0%,60%,100% { transform:translateY(0); opacity:0.4; } 30% { transform:translateY(-5px); opacity:1; } }
+
+.chat-input-area {
+  padding: 16px 24px;
+  border-top: 1px solid var(--gray-light);
+  background: #fafbfc;
+}
+.input-wrapper { display: flex; gap: 10px; align-items: flex-end; }
+.chat-input {
+  flex: 1; background: #fff; border: 1px solid var(--gray-light);
+  border-radius: 12px; padding: 12px 16px; color: var(--primary-black);
+  font-family: 'Source Sans Pro', sans-serif; font-size: 14px;
+  resize: none; min-height: 48px; max-height: 130px;
+  transition: border-color 0.2s; line-height: 22px;
+}
+.chat-input:focus { outline: none; border-color: var(--secondary-blue); }
+.chat-input::placeholder { color: #aaa; }
+.send-btn {
+  background: linear-gradient(135deg, var(--primary-mid), var(--secondary-teal));
+  border: none; border-radius: 12px; width: 48px; height: 48px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; flex-shrink: 0; transition: opacity 0.2s;
+}
+.send-btn:hover { opacity: 0.85; }
+.send-btn svg { fill: white; }
+
+.mic-btn {
+  background: #f4f6f9;
+  border: 1px solid var(--gray-light);
+  border-radius: 12px; width: 48px; height: 48px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; flex-shrink: 0; transition: all 0.2s;
+  color: var(--gray-mid);
+}
+.mic-btn:hover { background: var(--secondary-light); border-color: var(--secondary-blue); color: var(--secondary-teal); }
+.mic-btn.recording {
+  background: rgba(214,3,10,0.08);
+  border-color: var(--accent-red);
+  color: var(--accent-red);
+  animation: micPulse 1.2s ease infinite;
+}
+@keyframes micPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(214,3,10,0.25); }
+  50%       { box-shadow: 0 0 0 6px rgba(214,3,10,0); }
+}
+.input-hint { font-size: 11px; color: #aaa; margin-top: 6px; text-align: center; }
+
+/* ── SIDEBAR ── */
+.sidebar {
+  display: flex; flex-direction: column;
+  background: #f8f9fb;
+  overflow-y: auto;
+  border-left: 1px solid var(--gray-light);
+}
+.sidebar::-webkit-scrollbar { width: 4px; }
+.sidebar::-webkit-scrollbar-thumb { background: var(--gray-light); border-radius: 4px; }
+.sidebar-section { padding: 18px 18px; border-bottom: 1px solid var(--gray-light); }
+.sidebar-section h5 {
+  font-size: 11px; font-weight: 700; letter-spacing: 1px;
+  text-transform: uppercase; color: #9ea4ad; margin-bottom: 12px;
+}
+
+/* Score display */
+.score-display {
+  text-align: center; padding: 16px;
+  background: #fff; border: 1px solid var(--gray-light);
+  border-radius: 12px; margin-bottom: 10px;
+}
+.score-num {
+  font-size: 44px; font-weight: 700; line-height: 1;
+  color: var(--primary-mid); margin-bottom: 2px;
+}
+.score-denom { font-size: 18px; font-weight: 600; color: var(--gray-mid); }
+.score-label { font-size: 11px; font-weight: 600; letter-spacing: 0.5px; color: #9ea4ad; text-transform: uppercase; margin-bottom: 8px; }
+.score-weight { font-size: 12px; color: var(--gray-mid); margin-top: 6px; }
+.progress-bar-wrap { background: var(--gray-light); border-radius: 4px; height: 5px; overflow: hidden; margin-top: 8px; }
+.progress-bar-fill { height: 100%; border-radius: 4px; background: linear-gradient(90deg, var(--secondary-teal), var(--secondary-blue)); transition: width 0.5s ease; }
+
+/* Exchange history — clickable */
+.exchange-list { display: flex; flex-direction: column; gap: 8px; }
+.exchange-item {
+  background: #fff; border: 1px solid var(--gray-light);
+  border-radius: 10px; padding: 10px 12px;
+  cursor: pointer; transition: all 0.18s;
+}
+.exchange-item:hover { border-color: var(--secondary-blue); box-shadow: 0 2px 8px rgba(35,177,231,0.12); }
+.exchange-item.active { border-color: var(--secondary-blue); background: var(--secondary-light); }
+.exchange-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 5px; }
+.exchange-num { font-size: 10px; font-weight: 700; color: #9ea4ad; text-transform: uppercase; letter-spacing: 0.5px; }
+.exchange-score-badge { font-size: 12px; font-weight: 700; padding: 1px 7px; border-radius: 6px; }
+.score-a { background: rgba(0,166,81,0.12);  color: var(--accent-green); }
+.score-b { background: rgba(35,177,231,0.12); color: var(--secondary-teal); }
+.score-c { background: rgba(172,101,2,0.12); color: var(--accent-gold); }
+.score-d { background: rgba(214,3,10,0.08);  color: var(--accent-red); }
+.exchange-preview { font-size: 11px; line-height: 16px; color: var(--gray-mid); }
+
+/* Tip pills */
+.tip-pills { display: flex; flex-wrap: wrap; gap: 6px; }
+.tip-pill {
+  background: rgba(12,67,141,0.07); border: 1px solid rgba(12,67,141,0.15);
+  border-radius: 20px; padding: 4px 10px;
+  font-size: 11px; font-weight: 600; color: var(--primary-mid);
+  cursor: pointer; transition: all 0.18s;
+}
+.tip-pill:hover { background: rgba(12,67,141,0.13); border-color: var(--primary-mid); }
+
+/* ── EXCHANGE DETAIL DRAWER (replaces floating feedback) ── */
+.exchange-detail {
+  display: none;
+  background: #fff;
+  border: 1px solid var(--gray-light);
+  border-radius: 12px;
+  padding: 14px;
+  margin-top: 10px;
+  animation: fadeIn 0.2s ease;
+}
+.exchange-detail.show { display: block; }
+@keyframes fadeIn { from { opacity:0; transform:translateY(4px); } to { opacity:1; transform:translateY(0); } }
+.detail-grade-row { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+.detail-grade-badge {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 28px; height: 28px; border-radius: 7px; font-size: 14px; font-weight: 700;
+}
+.detail-title { font-size: 12px; font-weight: 700; color: var(--primary-black); }
+.detail-score { font-size: 11px; color: var(--gray-mid); }
+.detail-section { margin-bottom: 8px; }
+.detail-section h6 { font-size: 10px; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; margin-bottom: 4px; }
+.detail-section.strength h6 { color: var(--accent-green); }
+.detail-section.improve  h6 { color: var(--accent-gold); }
+.detail-section.tip      h6 { color: var(--secondary-teal); }
+.detail-section p { font-size: 12px; line-height: 18px; color: var(--gray-mid); }
+.detail-section.tip p { color: var(--primary-mid); font-style: italic; }
+.detail-close { display: none; }
+
+/* Loading overlay */
+.loading-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(244,246,249,0.92);
+  z-index: 500; flex-direction: column;
+  align-items: center; justify-content: center; gap: 16px;
+}
+.loading-overlay.show { display: flex; }
+.spinner {
+  width: 44px; height: 44px;
+  border: 4px solid var(--gray-light);
+  border-top-color: var(--primary-mid);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading-text { font-size: 15px; font-weight: 600; color: var(--gray-mid); }
+
+/* ── SUMMARY SCREEN ── */
+#summary-screen {
+  display: none;
+  padding: 50px 40px 60px;
+  background: #f4f6f9;
+  min-height: calc(100vh - 160px);
+}
+.summary-inner { max-width: 800px; margin: 0 auto; }
+.summary-header { text-align: center; margin-bottom: 32px; }
+.summary-icon { font-size: 52px; margin-bottom: 16px; }
+.summary-header h2 { font-size: 34px; font-weight: 700; color: var(--primary-black); margin-bottom: 8px; }
+.summary-header .sub { font-size: 16px; color: var(--gray-mid); }
+.summary-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; margin-bottom: 24px; }
+.summary-stat {
+  background: #fff; border: 1px solid var(--gray-light);
+  border-radius: 14px; padding: 22px; text-align: center;
+  box-shadow: 0 2px 8px rgba(4,16,34,0.05);
+}
+.summary-stat .big { font-size: 40px; font-weight: 700; color: var(--primary-mid); line-height: 1; }
+.summary-stat .lbl { font-size: 13px; color: var(--gray-mid); margin-top: 6px; }
+.summary-stat .wt  { font-size: 12px; color: #9ea4ad; margin-top: 3px; }
+.key-takeaways {
+  background: #fff; border: 1px solid var(--gray-light);
+  border-radius: 14px; padding: 24px; margin-bottom: 24px;
+  box-shadow: 0 2px 8px rgba(4,16,34,0.05);
+}
+.key-takeaways h4 { font-size: 13px; font-weight: 700; color: var(--primary-mid); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 14px; }
+.key-takeaways ul { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+.key-takeaways li { display: flex; gap: 10px; font-size: 15px; line-height: 22px; color: var(--primary-black); }
+.key-takeaways li::before { content: '→'; color: var(--secondary-blue); font-weight: 700; flex-shrink: 0; }
+
+/* All scenario progress on summary */
+.all-progress {
+  background: #fff; border: 1px solid var(--gray-light);
+  border-radius: 14px; padding: 24px; margin-bottom: 24px;
+  box-shadow: 0 2px 8px rgba(4,16,34,0.05);
+}
+.all-progress h4 { font-size: 13px; font-weight: 700; color: var(--primary-mid); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 14px; }
+.progress-row {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 0; border-bottom: 1px solid var(--gray-light);
+}
+.progress-row:last-child { border-bottom: none; }
+.progress-row-name { font-size: 14px; font-weight: 600; color: var(--primary-black); flex: 1; }
+.progress-row-score { font-size: 14px; font-weight: 700; color: var(--primary-mid); min-width: 52px; text-align: right; }
+.progress-row-badge { font-size: 12px; font-weight: 700; padding: 3px 9px; border-radius: 12px; }
+
+.action-btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+.btn-primary { background: linear-gradient(135deg, var(--primary-mid), var(--secondary-teal)); border: none; border-radius: 12px; padding: 14px 28px; color: #fff; font-family: 'Source Sans Pro', sans-serif; font-size: 16px; font-weight: 700; cursor: pointer; transition: opacity 0.2s; }
+.btn-primary:hover { opacity: 0.85; }
+.btn-ghost { background: #fff; border: 1px solid var(--gray-light); border-radius: 12px; padding: 14px 28px; color: var(--primary-mid); font-family: 'Source Sans Pro', sans-serif; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.2s; box-shadow: 0 1px 4px rgba(4,16,34,0.06); }
+.btn-ghost:hover { border-color: var(--secondary-blue); }
+
+@media (max-width: 768px) {
+  .rp-body { grid-template-columns: 1fr; }
+  .sidebar { display: none; }
+  .summary-grid { grid-template-columns: 1fr 1fr; }
+  .hero, #scenario-screen, #summary-screen { padding: 24px 20px; }
+  .brief-bar { padding: 10px 20px; gap: 14px; }
+}
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-inner">
+    <div>
+      <div class="hero-badge">
+        <svg width="8" height="8" viewBox="0 0 8 8" fill="currentColor"><circle cx="4" cy="4" r="4"/></svg>
+        UACC Sales Training
+      </div>
+      <h1>Dealer Conversation Simulator</h1>
+      <p>Practice positioning UACC's pricing model with dealers. Real scenarios. AI-powered feedback. Built from top-performer playbooks.</p>
+    </div>
+    <div class="hero-stats">
+      <div class="stat-card"><div class="num">6</div><div class="lbl">Scenarios</div></div>
+      <div class="stat-card"><div class="num">3</div><div class="lbl">Difficulty Levels</div></div>
+      <div class="stat-card"><div class="num">AI</div><div class="lbl">Live Coaching</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- SCENARIO SELECTION -->
+<div id="scenario-screen">
+  <div class="page-wrap">
+    <div class="section-label">Choose Your Scenario</div>
+    <div class="scenario-grid" id="scenario-grid"></div>
+  </div>
+</div>
+
+<!-- LOADING OVERLAY -->
+<div class="loading-overlay" id="loading-overlay">
+  <div class="spinner"></div>
+  <div class="loading-text">Scoring your session…</div>
+</div>
+
+<!-- ROLEPLAY SCREEN -->
+<div id="roleplay-screen" style="display:none; flex-direction:column; height:100vh;">
+
+  <!-- Header with gradient -->
+  <div class="rp-header">
+    <div class="rp-header-inner">
+      <div class="dealer-avatar" id="dealer-avatar">D</div>
+      <div class="dealer-info">
+        <h4 id="dealer-name">Dealer Name</h4>
+        <p id="dealer-context">Scenario context</p>
+      </div>
+      <div class="rp-header-actions">
+        <button class="icon-btn danger" onclick="endSession()">End &amp; Score</button>
+        <button class="icon-btn" onclick="backToScenarios()">&#8592; Scenarios</button>
+      </div>
+    </div>
+    <!-- Scenario brief bar under gradient header -->
+    <div class="brief-bar">
+      <div class="brief-bar-item">
+        <span class="brief-bar-label">Dealer Profile</span>
+        <span class="brief-bar-value" id="brief-bar-profile">—</span>
+      </div>
+      <div class="brief-bar-item">
+        <span class="brief-bar-label">Your Goal</span>
+        <span class="brief-bar-value" id="brief-bar-goal">—</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Body: chat + sidebar -->
+  <div class="rp-body">
+
+    <!-- Chat -->
+    <div class="chat-panel">
+      <div class="chat-messages" id="chat-messages">
+        <div class="typing-indicator" id="typing-indicator">
+          <div class="typing-dots"><span></span><span></span><span></span></div>
+        </div>
+      </div>
+      <div class="chat-input-area">
+        <div class="input-wrapper">
+          <textarea class="chat-input" id="chat-input" placeholder="Type your response or use the mic…" rows="1" onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
+          <button class="mic-btn" id="mic-btn" onclick="toggleVoice()" title="Voice input">
+            <svg id="mic-icon" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.91-3c-.49 0-.9.36-.98.85C16.52 14.2 14.47 16 12 16s-4.52-1.8-4.93-4.15c-.08-.49-.49-.85-.98-.85-.61 0-1.09.54-1 1.14.49 3 2.89 5.35 5.91 5.78V20c0 .55.45 1 1 1s1-.45 1-1v-2.08c3.02-.43 5.42-2.78 5.91-5.78.1-.6-.39-1.14-1-1.14z"/>
+            </svg>
+          </button>
+          <button class="send-btn" onclick="sendMessage()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+          </button>
+        </div>
+        <div class="input-hint" id="input-hint">Enter to send &middot; Shift+Enter for new line &middot; 🎤 mic to speak</div>
+      </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+
+      <!-- Score -->
+      <div class="sidebar-section">
+        <h5>Session Score</h5>
+        <div class="score-display">
+          <div class="score-num" id="live-score">—<span class="score-denom" id="live-denom"></span></div>
+          <div class="score-label">Avg across exchanges</div>
+          <div class="progress-bar-wrap"><div class="progress-bar-fill" id="score-bar" style="width:0%"></div></div>
+          <div class="score-weight" id="score-weight-label"></div>
+        </div>
+      </div>
+
+      <!-- Exchange history -->
+      <div class="sidebar-section" style="flex:1;">
+        <h5>Exchange History — tap to review</h5>
+        <div class="exchange-list" id="exchange-list">
+          <div style="font-size:12px;color:#9ea4ad;text-align:center;padding:16px 0;">No exchanges yet</div>
+        </div>
+      </div>
+
+      <!-- Tips -->
+      <div class="sidebar-section">
+        <h5>Top-Performer Tips</h5>
+        <div class="tip-pills">
+          <div class="tip-pill" onclick="insertTip('the net check is the real number — let me show you what a stronger customer does to that dollar amount')">Lead w/ Net Check $</div>
+          <div class="tip-pill" onclick="insertTip('let me show you a deal a nearby dealer sent us — same profile, bigger payout')">Use Competitor Example</div>
+          <div class="tip-pill" onclick="insertTip('what we look for is recent behavior — are they paying their open auto or credit cards on time right now')">Recent Behavior = Key</div>
+          <div class="tip-pill" onclick="insertTip('just give me one shot — send it over and see what we can do')">Ask for One Shot</div>
+          <div class="tip-pill" onclick="insertTip('a mortgage is about as strong as having four paid car loans on their record')">Mortgage = 4 Autos</div>
+          <div class="tip-pill" onclick="insertTip('the asset grade sheet in Fast Lane shows which cars get you the biggest net check')">Asset Grade Sheet</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- SUMMARY SCREEN -->
+<div id="summary-screen">
+  <div class="summary-inner">
+    <div class="summary-header">
+      <div class="summary-icon" id="summary-icon">🏆</div>
+      <h2 id="summary-title">Session Complete</h2>
+      <p class="sub" id="summary-sub">Here's how you performed</p>
+    </div>
+
+    <div class="summary-grid">
+      <div class="summary-stat">
+        <div class="big" id="final-score">—</div>
+        <div class="lbl">Final Score</div>
+        <div class="wt" id="final-score-wt"></div>
+      </div>
+      <div class="summary-stat">
+        <div class="big" id="exchanges-count">—</div>
+        <div class="lbl">Exchanges Completed</div>
+      </div>
+      <div class="summary-stat">
+        <div class="big" id="top-grade">—</div>
+        <div class="lbl">Best Exchange Grade</div>
+      </div>
+    </div>
+
+    <div class="key-takeaways">
+      <h4>Key Takeaways</h4>
+      <ul id="takeaway-list"><li>Generating personalized coaching…</li></ul>
+    </div>
+
+    <div class="all-progress" id="all-progress-section">
+      <h4>Your Progress Across All Scenarios</h4>
+      <div id="all-progress-rows"></div>
+    </div>
+
+    <div class="action-btns">
+      <button class="btn-primary" onclick="retryScenario()">Retry This Scenario</button>
+      <button class="btn-ghost" onclick="backToScenarios()">Try Another Scenario</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─── SCENARIOS ────────────────────────────────────────────────────────────────
+const SCENARIOS = [
+  {
+    id: 'opener-easy', difficulty: 'easy',
+    title: 'The Curious New Dealer',
+    desc: 'A newer dealer sending mostly first-time buyers and thin-file apps asks why they should change their habits.',
+    dealerName: 'Marcus Webb', dealerShort: 'MW',
+    context: 'Newer dealer · Open to learning',
+    brief: 'Marcus has been a UACC dealer for 8 months. He submits mostly first-time buyers and ghost-file customers. He\'s not hostile — he just doesn\'t know what UACC is looking for now or how the quality of the customer affects his net check.',
+    goal: 'Explain what kinds of customers get UACC\'s best offers and how that translates to a bigger net check. Get Marcus to commit to sending one stronger customer this week.',
+    opening: "Hey, I keep hearing from reps that I should be sending you different kinds of customers. Honestly, I just submit what walks in the door. Are you saying I should be turning people away?",
+    exchanges: 4
+  },
+  {
+    id: 'competitor-easy', difficulty: 'easy',
+    title: 'The Westlake-First Dealer',
+    desc: 'A dealer defaults to Westlake on mid-tier customers. Help them see UACC can win on these deals — and net them more.',
+    dealerName: 'Diana Reyes', dealerShort: 'DR',
+    context: 'Mid-size dealer · Westlake loyalist',
+    brief: 'Diana runs a 60-unit lot. Anything above a 620 FICO goes to Westlake first — always. She sees UACC as a last resort for tough deals. She doesn\'t realize UACC is now competitive on mid-tier customers and can net her more on the right deals.',
+    goal: 'Show Diana that UACC competes — and wins — on mid-tier customers, especially on discount and rate. Get her to agree to click UACC on her next deal alongside Westlake.',
+    opening: "Look, I respect you guys, but anything above a 620 I'm going Westlake first. They're fast and I know what I'm getting. Why would I change that?",
+    exchanges: 4
+  },
+  {
+    id: 'ascore-medium', difficulty: 'medium',
+    title: 'The FICO-Confused F&I Manager',
+    desc: 'A finance manager is baffled — a customer with a rough credit history got a great UACC offer, while a seemingly strong customer got turned down.',
+    dealerName: 'Tony Garza', dealerShort: 'TG',
+    context: 'Experienced F&I · FICO-anchored mindset',
+    brief: 'Tony has 12 years in F&I and screens everything by FICO. Recently, a customer with a 500 score got a strong UACC offer, while a 680 came back with a worse deal. He thinks the system is broken and is losing trust.',
+    goal: 'Help Tony understand that UACC prioritizes recent payment behavior — not just the overall score. Reframe how he should screen customers before submitting.',
+    opening: "I don't get your system. I had a customer with a 680 credit score and you guys barely approved him. Then I had someone with a 500 and you gave her a great deal. That makes no sense.",
+    exchanges: 5
+  },
+  {
+    id: 'netcheck-medium', difficulty: 'medium',
+    title: 'The Net Check Skeptic',
+    desc: 'A data-driven, high-volume dealer doesn\'t believe better customers will actually net more money. She wants proof.',
+    dealerName: 'Rachel Kim', dealerShort: 'RK',
+    context: 'High-volume dealer · Show-me attitude',
+    brief: 'Rachel runs 120+ units/month. She\'s heard the "send better customers, earn more" pitch before and doesn\'t buy it. She has a specific deal in mind where UACC netted her less than a competitor on a similar customer.',
+    goal: 'Walk Rachel through the net check math. Explain how customer quality affects the deal structure and get her to pull up a recent submission so you can demonstrate the difference live.',
+    opening: "Every rep tells me to send better customers and I'll make more money. Prove it. Last month you guys approved a customer — I made $800 back-end. My other lender netted me $1,400 on a similar deal. Explain that.",
+    exchanges: 5
+  },
+  {
+    id: 'routing-hard', difficulty: 'hard',
+    title: 'The Long-Tenured Holdout',
+    desc: 'A 10-year UACC dealer is sending 80+ apps a month with near-zero funded deals. He\'s bitter, disengaged, and close to deactivation.',
+    dealerName: 'Big Mike Deluca', dealerShort: 'MD',
+    context: 'Veteran dealer · Frustrated · High volume, low quality',
+    brief: 'Mike\'s been with UACC since 2015. He\'s stuck submitting the same types of customers — first-time buyers, passport clients, ghost files — that UACC no longer funds well. He\'s bitter that the program changed and doesn\'t see it as his problem to fix. He\'s on the verge of being flagged for deactivation.',
+    goal: 'Acknowledge Mike\'s history without getting defensive. Redirect him toward what UACC funds today and what that\'s worth to him per deal. Plant a seed for behavior change.',
+    opening: "Listen, I've been with United for 10 years. Ten years. I'm sending 80 apps a month and funding one or two. That's not on me — your program changed. You don't want the kind of customer I do business with anymore. I'm about to stop bothering.",
+    exchanges: 6
+  },
+  {
+    id: 'turnaround-hard', difficulty: 'hard',
+    title: 'The Dealership Turnaround',
+    desc: 'A once-top dealer has drifted back to junk paper and near-zero funding. One visit to turn it around before leadership pulls Route One access.',
+    dealerName: 'Carlos Vega', dealerShort: 'CV',
+    context: 'Former top dealer · Volume up, quality collapsed',
+    brief: 'Carlos used to fund 10–12 deals/month with UACC. Over the last 4 months he\'s sent 90+ apps and funded 1–2. He\'s submitting first-time buyers, ghost files, and customers with recent derogatory marks — exactly what UACC doesn\'t buy anymore. He\'s complacent, not hostile. Leadership is considering pulling his Route One access. This is your one visit.',
+    goal: 'Help Carlos understand what changed in UACC\'s buying criteria in plain terms — no jargon. Show him what a strong submission looks like today. Get him to commit to a specific change, ideally using the Fast Lane asset grade sheet as an anchor.',
+    opening: "I don't know what's going on. I've been sending you deals like I always have and nothing is getting funded. Am I wasting my time? My other lenders aren't giving me this problem.",
+    exchanges: 6
+  }
+];
+
+// ═══════════════════════════════════════════════════════════════════════════
+// xAPI + SCORM CONFIGURATION
+// Fill in your Absorb LRS credentials before deploying.
+// Leave SCORM values as-is — they are populated automatically at runtime.
+// ═══════════════════════════════════════════════════════════════════════════
+const XAPI_CONFIG = {
+  endpoint:  'https://YOUR-ABSORB-SUBDOMAIN.myabsorb.com/api/v1/xapi/', // ← paste from Absorb admin
+  username:  'YOUR_XAPI_USERNAME',   // ← from Absorb Settings → Integrations
+  password:  'YOUR_XAPI_PASSWORD',   // ← from Absorb Settings → Integrations
+  passMark:  70                       // score threshold for passed/failed (0–100)
+};
+
+// ─── SCORM BRIDGE ─────────────────────────────────────────────────────────────
+// Communicates completion + score back to Storyline → Absorb via SCORM.
+// Works for both SCORM 1.2 and SCORM 2004.
+const SCORM = {
+  api: null,
+  initialized: false,
+
+  find() {
+    let w = window;
+    for (let i = 0; i < 10; i++) {
+      try {
+        if (w.API)         { this.api = w.API;         this.ver = '1.2';  return true; }
+        if (w.API_1484_11) { this.api = w.API_1484_11; this.ver = '2004'; return true; }
+        if (!w.parent || w.parent === w) break;
+        w = w.parent;
+      } catch(e) {
+        break; // cross-origin frame — stop climbing, no SCORM available
+      }
+    }
+    return false;
+  },
+
+  init() {
+    if (!this.find()) return;
+    try {
+      const fn = this.ver === '1.2' ? 'LMSInitialize' : 'Initialize';
+      this.initialized = this.api[fn]('') === 'true' || this.api[fn]('') === true;
+    } catch(e) {}
+  },
+
+  set(key, val) {
+    if (!this.initialized) return;
+    try {
+      const fn = this.ver === '1.2' ? 'LMSSetValue' : 'SetValue';
+      this.api[fn](key, val);
+    } catch(e) {}
+  },
+
+  commit() {
+    if (!this.initialized) return;
+    try {
+      const fn = this.ver === '1.2' ? 'LMSCommit' : 'Commit';
+      this.api[fn]('');
+    } catch(e) {}
+  },
+
+  finish() {
+    if (!this.initialized) return;
+    try {
+      const fn = this.ver === '1.2' ? 'LMSFinish' : 'Terminate';
+      this.api[fn]('');
+    } catch(e) {}
+  },
+
+  complete(score, passed) {
+    if (this.ver === '1.2') {
+      this.set('cmi.core.score.raw', score);
+      this.set('cmi.core.lesson_status', passed ? 'passed' : 'failed');
+    } else {
+      this.set('cmi.score.raw', score);
+      this.set('cmi.score.scaled', (score / 100).toFixed(2));
+      this.set('cmi.completion_status', 'completed');
+      this.set('cmi.success_status', passed ? 'passed' : 'failed');
+    }
+    this.commit();
+    this.finish();
+  }
+};
+
+// ─── xAPI HELPERS ─────────────────────────────────────────────────────────────
+const xAPI = {
+  auth: 'Basic ' + btoa(`${XAPI_CONFIG.username}:${XAPI_CONFIG.password}`),
+
+  actor() {
+    // Pull learner name/email from SCORM if available, otherwise use anonymous
+    let name = 'UACC Learner', email = 'learner@uacc.com';
+    try {
+      if (SCORM.initialized && SCORM.ver === '1.2') {
+        name  = SCORM.api.LMSGetValue('cmi.core.student_name')  || name;
+        email = SCORM.api.LMSGetValue('cmi.core.student_id')    || email;
+      } else if (SCORM.initialized) {
+        name  = SCORM.api.GetValue('cmi.learner_name') || name;
+        email = SCORM.api.GetValue('cmi.learner_id')   || email;
+      }
+    } catch(e) {}
+    return { objectType:'Agent', name, mbox:`mailto:${email}` };
+  },
+
+  send(statement) {
+    if (!XAPI_CONFIG.endpoint || XAPI_CONFIG.endpoint.includes('YOUR-ABSORB')) return; // not configured yet
+    fetch(XAPI_CONFIG.endpoint + 'statements', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': this.auth,
+        'X-Experience-API-Version': '1.0.3'
+      },
+      body: JSON.stringify({ ...statement, timestamp: new Date().toISOString() })
+    }).catch(() => {}); // fire-and-forget; never block the UI
+  },
+
+  // Scenario started
+  attempted(scenario) {
+    this.send({
+      actor: this.actor(),
+      verb: { id: 'http://adlnet.gov/expapi/verbs/attempted', display: { 'en-US': 'attempted' } },
+      object: {
+        id: `https://uacc.training/simulator/scenario/${scenario.id}`,
+        definition: {
+          name: { 'en-US': scenario.title },
+          description: { 'en-US': scenario.desc },
+          type: 'http://adlnet.gov/expapi/activities/simulation',
+          extensions: { 'https://uacc.training/ext/difficulty': scenario.difficulty }
+        }
+      }
+    });
+  },
+
+  // Single exchange scored
+  exchanged(scenario, exchangeNum, score, grade, repText) {
+    this.send({
+      actor: this.actor(),
+      verb: { id: 'http://adlnet.gov/expapi/verbs/interacted', display: { 'en-US': 'responded' } },
+      object: {
+        id: `https://uacc.training/simulator/scenario/${scenario.id}/exchange/${exchangeNum}`,
+        definition: {
+          name: { 'en-US': `${scenario.title} — Exchange ${exchangeNum}` },
+          type: 'http://adlnet.gov/expapi/activities/interaction',
+          extensions: {
+            'https://uacc.training/ext/scenario-id':   scenario.id,
+            'https://uacc.training/ext/exchange-num':  exchangeNum,
+            'https://uacc.training/ext/rep-response':  repText.substring(0, 200)
+          }
+        }
+      },
+      result: {
+        score: { raw: score, min: 0, max: 100, scaled: score / 100 },
+        extensions: { 'https://uacc.training/ext/grade': grade }
+      }
+    });
+  },
+
+  // Full session completed
+  completed(scenario, finalScore, totalExchanges, passed, exchangeDetails) {
+    this.send({
+      actor: this.actor(),
+      verb: { id: 'http://adlnet.gov/expapi/verbs/completed', display: { 'en-US': 'completed' } },
+      object: {
+        id: `https://uacc.training/simulator/scenario/${scenario.id}`,
+        definition: {
+          name: { 'en-US': scenario.title },
+          type: 'http://adlnet.gov/expapi/activities/simulation',
+          extensions: { 'https://uacc.training/ext/difficulty': scenario.difficulty }
+        }
+      },
+      result: {
+        score: { raw: finalScore, min: 0, max: 100, scaled: finalScore / 100 },
+        success: passed,
+        completion: true,
+        extensions: {
+          'https://uacc.training/ext/exchanges-completed': totalExchanges,
+          'https://uacc.training/ext/pass-mark':           XAPI_CONFIG.passMark,
+          'https://uacc.training/ext/exchange-grades':     exchangeDetails.map(e => e.grade).join(','),
+          'https://uacc.training/ext/exchange-scores':     exchangeDetails.map(e => e.score).join(',')
+        }
+      }
+    });
+  }
+};
+
+// ─── GLOBAL STATE ─────────────────────────────────────────────────────────────
+let currentScenario = null;
+let conversationHistory = [];
+let exchangeScores = [];
+let sessionActive = false;
+let exchangeCount = 0;
+
+// Persistent progress: { scenarioId: { bestScore, attempts, lastGrade } }
+let allProgress = JSON.parse(localStorage.getItem('uacc_progress') || '{}');
+
+function saveProgress() {
+  localStorage.setItem('uacc_progress', JSON.stringify(allProgress));
+}
+
+// Init SCORM on load
+SCORM.init();
+
+// ─── RENDER SCENARIOS ─────────────────────────────────────────────────────────
+function renderScenarios() {
+  document.getElementById('scenario-grid').innerHTML = SCENARIOS.map(s => {
+    const prog = allProgress[s.id];
+    const circumference = 2 * Math.PI * 16; // r=16
+    const pct = prog ? prog.bestScore / 100 : 0;
+    const offset = circumference * (1 - pct);
+    const ringColor = prog ? (prog.bestScore >= 80 ? '#00A651' : prog.bestScore >= 60 ? '#FD9F1B' : '#FC4349') : '#D6D7DA';
+    const ringFill = prog ? `stroke="${ringColor}" stroke-dasharray="${circumference}" stroke-dashoffset="${offset}"` : `stroke="${ringColor}" stroke-dasharray="${circumference}" stroke-dashoffset="${circumference}"`;
+    const ringText = prog ? `<text class="ring-score" x="18" y="18" fill="${ringColor}">${prog.bestScore}</text>` : `<text class="ring-label" x="18" y="18">NEW</text>`;
+
+    let statusHtml = '';
+    if (!prog) {
+      statusHtml = '<span class="card-status status-new">Not started</span>';
+    } else {
+      const sc = prog.bestScore;
+      const statusColor = sc >= 80 ? 'status-strong' : sc >= 60 ? 'status-mid' : 'status-low';
+      statusHtml = `<span class="card-status ${statusColor}">Best: ${sc}/100 &middot; ${prog.attempts} attempt${prog.attempts>1?'s':''}</span>`;
+    }
+
+    return `
+    <div class="scenario-card ${s.difficulty}" onclick="startScenario('${s.id}')">
+      <div class="card-top">
+        <div class="diff-badge ${s.difficulty}">
+          ${s.difficulty === 'easy' ? '&#9679; Foundational' : s.difficulty === 'medium' ? '&#9679;&#9679; Intermediate' : '&#9679;&#9679;&#9679; Advanced'}
+        </div>
+        <div class="card-progress-ring">
+          <svg class="ring-svg" width="36" height="36" viewBox="0 0 36 36">
+            <circle class="ring-bg" cx="18" cy="18" r="16"/>
+            <circle class="ring-fill" cx="18" cy="18" r="16" ${ringFill}/>
+            ${ringText}
+          </svg>
+        </div>
+      </div>
+      <h3>${s.title}</h3>
+      <p class="desc">${s.desc}</p>
+      <div class="scenario-meta">
+        <div class="meta-item">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67V7z"/></svg>
+          ${s.exchanges} exchanges
+        </div>
+        <div class="meta-item">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+          ${s.context}
+        </div>
+      </div>
+      ${statusHtml}
+      <button class="start-btn">${prog ? 'Retry Scenario' : 'Begin Scenario'} &#8594;</button>
+    </div>`;
+  }).join('');
+}
+
+// ─── START SCENARIO ───────────────────────────────────────────────────────────
+function startScenario(id) {
+  currentScenario = SCENARIOS.find(s => s.id === id);
+  conversationHistory = [];
+  exchangeScores = [];
+  exchangeCount = 0;
+  sessionActive = true;
+
+  document.getElementById('dealer-avatar').textContent = currentScenario.dealerShort;
+  document.getElementById('dealer-name').textContent = currentScenario.dealerName;
+  document.getElementById('dealer-context').textContent = currentScenario.context;
+  document.getElementById('brief-bar-profile').textContent = currentScenario.brief;
+  document.getElementById('brief-bar-goal').textContent = currentScenario.goal;
+
+  const maxEx = currentScenario.exchanges;
+  document.getElementById('live-score').innerHTML = '—';
+  document.getElementById('score-bar').style.width = '0%';
+  document.getElementById('score-weight-label').textContent = '';
+  document.getElementById('exchange-list').innerHTML = '<div style="font-size:12px;color:#9ea4ad;text-align:center;padding:16px 0;">No exchanges yet</div>';
+
+  const msgs = document.getElementById('chat-messages');
+  msgs.innerHTML = '<div class="typing-indicator" id="typing-indicator"><div class="typing-dots"><span></span><span></span><span></span></div></div>';
+
+  document.getElementById('scenario-screen').style.display = 'none';
+  document.getElementById('summary-screen').style.display = 'none';
+  const rp = document.getElementById('roleplay-screen');
+  rp.style.display = 'flex';
+
+  xAPI.attempted(currentScenario);
+
+  setTimeout(() => {
+    addDealerMessage(currentScenario.opening);
+    conversationHistory.push({ role: 'assistant', content: currentScenario.opening });
+  }, 700);
+}
+
+// ─── MESSAGES ─────────────────────────────────────────────────────────────────
+function addDealerMessage(text) {
+  document.getElementById('typing-indicator').style.display = 'none';
+  const msgs = document.getElementById('chat-messages');
+  const div = document.createElement('div');
+  div.className = 'msg dealer';
+  div.innerHTML = `<div class="msg-avatar">${currentScenario.dealerShort}</div><div><div class="msg-label">${currentScenario.dealerName}</div><div class="msg-bubble">${escHtml(text)}</div></div>`;
+  msgs.insertBefore(div, document.getElementById('typing-indicator'));
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function addRepMessage(text) {
+  const msgs = document.getElementById('chat-messages');
+  const div = document.createElement('div');
+  div.className = 'msg rep';
+  div.innerHTML = `<div class="msg-avatar">ME</div><div><div class="msg-label">You</div><div class="msg-bubble">${escHtml(text)}</div></div>`;
+  msgs.insertBefore(div, document.getElementById('typing-indicator'));
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function showTyping() {
+  document.getElementById('typing-indicator').style.display = 'block';
+  const m = document.getElementById('chat-messages');
+  m.scrollTop = m.scrollHeight;
+}
+
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
+}
+
+// ─── SEND ─────────────────────────────────────────────────────────────────────
+async function sendMessage() {
+  const input = document.getElementById('chat-input');
+  const text = input.value.trim();
+  if (!text || !sessionActive) return;
+  input.value = ''; input.style.height = 'auto';
+  exchangeCount++;
+
+  addRepMessage(text);
+  conversationHistory.push({ role: 'user', content: text });
+  showTyping();
+
+  const [dealerResp, feedbackData] = await Promise.all([
+    getDealerResponse(text),
+    getExchangeFeedback(text)
+  ]);
+
+  addDealerMessage(dealerResp);
+  conversationHistory.push({ role: 'assistant', content: dealerResp });
+
+  exchangeScores.push({ ...feedbackData, repText: text, num: exchangeCount });
+  xAPI.exchanged(currentScenario, exchangeCount, feedbackData.score, feedbackData.grade, text);
+  updateScoreDisplay();
+  addExchangeToHistory(exchangeCount, text, feedbackData);
+}
+
+// ─── API: DEALER ──────────────────────────────────────────────────────────────
+async function getDealerResponse(repMessage) {
+  const system = `You are roleplaying as ${currentScenario.dealerName}, a car dealer in a UACC (United Auto Credit) sales training simulation.
+
+DEALER PROFILE: ${currentScenario.brief}
+CONTEXT: ${currentScenario.context}
+
+RULES:
+- You are a real dealer. Direct, experienced, not easily impressed.
+- React authentically to exactly what the rep just said. Reference their specific words or points.
+- If they made a good point about money or customer quality, acknowledge it cautiously and ask a follow-up.
+- If they were vague or generic, push back with a specific question or objection.
+- Keep responses 2–4 sentences. You're busy.
+- Never break character. Never repeat the same response twice.
+- Do not resolve the scenario until the rep has genuinely addressed your core concern.
+- Difficulty: ${currentScenario.difficulty}. ${currentScenario.difficulty === 'hard' ? 'Stay resistant. Require specific proof before budging.' : currentScenario.difficulty === 'easy' ? 'Be open but ask natural, curious follow-up questions.' : 'Balance skepticism with genuine openness to evidence.'}
+- Always move the conversation forward — react to what was just said and either ask something new or raise a new concern.
+
+Respond only as the dealer. No narration. No stage directions.`;
+
+  try {
+    const r = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 250, system, messages: conversationHistory })
+    });
+    const d = await r.json();
+    const text = d.content?.[0]?.text;
+    if (text && text.length > 10) return text;
+    // If empty or too short, return a scenario-relevant fallback
+    return getFallbackResponse();
+  } catch(e) {
+    return getFallbackResponse();
+  }
+}
+
+function getFallbackResponse() {
+  // Scenario-aware fallbacks so the conversation never gets stuck
+  const fallbacks = {
+    'opener-easy': [
+      "Okay, but what does that actually mean for me? Like, what kind of customer are we talking about?",
+      "I hear you, but I'm still not clear on what I'm supposed to be looking for differently.",
+      "So you're saying if I send you a different type of customer, I make more money on the deal? Walk me through that."
+    ],
+    'competitor-easy': [
+      "Okay, but Westlake has never burned me. What makes you think you can do better on those deals?",
+      "I've heard that before from other reps. Show me a specific deal where you beat them.",
+      "Even if your rate is better, I'm not changing a process that's working for me without some proof."
+    ],
+    'ascore-medium': [
+      "That still doesn't explain why a worse credit score got a better deal. Help me understand that.",
+      "So you're saying I've been looking at the wrong thing this whole time? That's a big change.",
+      "Okay so what exactly should I be looking at before I submit a deal to you?"
+    ],
+    'netcheck-medium': [
+      "So what's the actual dollar difference we're talking about? Give me a number.",
+      "I need to see it on a real deal, not just in theory. Can you show me something concrete?",
+      "I want to believe you, but I've been burned by promises before. What's different this time?"
+    ],
+    'routing-hard': [
+      "I've heard this before. What's actually changed on your end that makes this worth my time?",
+      "You're asking me to change how I've been doing this for 10 years. That's not a small ask.",
+      "Fine — tell me exactly what you want me to send you. What does the perfect deal look like to you?"
+    ],
+    'turnaround-hard': [
+      "So you're saying all those deals I sent just weren't the right type? Why didn't someone tell me sooner?",
+      "Okay, so walk me through what you actually want. Because clearly what I've been doing isn't working.",
+      "I've been in this business a long time. If something changed, someone should have told me directly."
+    ]
+  };
+  const options = fallbacks[currentScenario?.id] || ["Okay, walk me through that a bit more.", "Give me a specific example — I need to see it to believe it.", "That's interesting. But what does it mean for my bottom line?"];
+  return options[Math.floor(Math.random() * options.length)];
+}
+
+// ─── API: FEEDBACK ────────────────────────────────────────────────────────────
+async function getExchangeFeedback(repMessage) {
+  const customerContext = `What UACC looks for in strong customers (do NOT use internal scoring jargon with the dealer — frame around customer behavior and payment history):
+- Customers paying on an open auto loan right now, on time
+- Customers with a mortgage (equals the strength of ~4 paid auto loans)
+- Credit cards under the limit and current
+- Recent consistent payment behavior, even if older history was rough (pre-2020 derogatory marks carry much less weight)
+
+What UACC does NOT want (frame this for the rep to explain to dealers without jargon):
+- First-time buyers / ghost files / passport customers (no credit history)
+- Customers with recent derogatory marks — credit cards currently over the limit, multiple accounts past due, recent collections or charge-offs
+- Customers where recent behavior shows financial stress, even if their old history looks clean`;
+
+  const prompt = `You are an expert UACC (United Auto Credit) sales coach scoring a rep's response in a dealer roleplay.
+
+SCENARIO: ${currentScenario.title}
+DEALER PROFILE: ${currentScenario.brief}
+REP GOAL: ${currentScenario.goal}
+
+CUSTOMER QUALITY CONTEXT:
+${customerContext}
+
+TOP-PERFORMER BEHAVIORS (Savier Morales & Sashan Mohammed):
+1. Lead with NET CHECK DOLLARS — frame everything around what the dealer earns, not UACC policy
+2. Use concrete examples — deals from nearby competitor dealers, live walkthroughs
+3. Explain customer quality in plain language — what does good recent behavior look like, not internal score terms
+4. Pivot objections to money — dealers care about what they make per deal
+5. Ask for one shot — low-commitment: "just send one, nothing to lose"
+6. Asset grade = net check — better car + stronger customer = bigger payout
+7. Stay forward-focused — no defending the old program; focus on opportunity now
+8. For retraining: anchor on the Fast Lane asset grade sheet as a practical tool
+
+REP SAID: "${repMessage}"
+
+RECENT CONVERSATION:
+${conversationHistory.slice(-4).map(m=>`${m.role==='user'?'YOU (REP)':'DEALER'}: ${m.content}`).join('\n')}
+
+Use "you" in feedback to address the rep directly. Return ONLY valid JSON (no markdown):
+{"grade":"A|B|C|D","score":<0-100>,"strength":"<1-2 sentences using 'you' — what you did well>","improve":"<1-2 sentences using 'you' — the single most important gap>","tip":"<specific phrase or reframe they could use — from the top-performer playbook>"}`;
+
+  try {
+    const r = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 400, messages: [{ role:'user', content: prompt }] })
+    });
+    const d = await r.json();
+    return JSON.parse((d.content?.[0]?.text||'{}').replace(/```json|```/g,'').trim());
+  } catch(e) {
+    return { grade:'B', score:70, strength:'You engaged directly with the dealer.', improve:'Try anchoring on a specific dollar amount tied to the net check.', tip:'Try: "Let me show you what a customer paying their current auto on time does to your net check — it\'s a real dollar difference."' };
+  }
+}
+
+// ─── SCORE DISPLAY ────────────────────────────────────────────────────────────
+function updateScoreDisplay() {
+  if (!exchangeScores.length) return;
+  const total = exchangeScores.reduce((a,b) => a+(b.score||0), 0);
+  const avg = Math.round(total / exchangeScores.length);
+  const maxEx = currentScenario.exchanges;
+  document.getElementById('live-score').innerHTML = `${avg}<span class="score-denom">/100</span>`;
+  document.getElementById('score-bar').style.width = avg + '%';
+  document.getElementById('score-weight-label').textContent = `${exchangeScores.length} of ${maxEx} exchanges scored`;
+}
+
+// ─── EXCHANGE HISTORY (clickable, with inline detail) ─────────────────────────
+function addExchangeToHistory(num, repText, data) {
+  const list = document.getElementById('exchange-list');
+  if (list.querySelector('[style]')) list.innerHTML = '';
+
+  // Collapse all currently open details
+  document.querySelectorAll('.exchange-detail.show').forEach(d => d.classList.remove('show'));
+  document.querySelectorAll('.exchange-item.active').forEach(i => i.classList.remove('active'));
+
+  const gc = { A:'score-a', B:'score-b', C:'score-c', D:'score-d' }[data.grade] || 'score-b';
+  const gradeColors = { A:'#00A651', B:'#137FAA', C:'#AC6502', D:'#D6030A' };
+  const gradeAlphas = { A:'0.12', B:'0.1', C:'0.1', D:'0.08' };
+  const g = data.grade || 'B';
+  const rgb = hex => `${parseInt(hex.slice(1,3),16)},${parseInt(hex.slice(3,5),16)},${parseInt(hex.slice(5,7),16)}`;
+
+  const item = document.createElement('div');
+  item.className = 'exchange-item active';
+  item.dataset.num = num;
+  item.innerHTML = `
+    <div class="exchange-header">
+      <span class="exchange-num">Exchange ${num}</span>
+      <span class="exchange-score-badge ${gc}">${data.grade} &middot; ${data.score}/100</span>
+    </div>
+    <div class="exchange-preview">"${repText.substring(0,55)}${repText.length>55?'…':''}"</div>
+    <div class="exchange-detail show" id="detail-${num}">
+      <div class="detail-grade-row">
+        <div class="detail-grade-badge" style="background:rgba(${rgb(gradeColors[g])},${gradeAlphas[g]});color:${gradeColors[g]};border:1px solid rgba(${rgb(gradeColors[g])},0.25)">${g}</div>
+        <div>
+          <div class="detail-title">Exchange ${num}</div>
+          <div class="detail-score">${data.score}/100 &middot; ${data.grade === 'A' ? 'Excellent' : data.grade === 'B' ? 'Good' : data.grade === 'C' ? 'Developing' : 'Needs Work'}</div>
+        </div>
+      </div>
+      <div class="detail-section strength">
+        <h6>&#10003; What Worked</h6>
+        <p>${data.strength || '—'}</p>
+      </div>
+      <div class="detail-section improve">
+        <h6>&#8593; What to Sharpen</h6>
+        <p>${data.improve || '—'}</p>
+      </div>
+      <div class="detail-section tip">
+        <h6>Coaching Tip</h6>
+        <p>${data.tip || '—'}</p>
+      </div>
+    </div>`;
+
+  item.addEventListener('click', () => toggleDetail(num, item));
+  list.appendChild(item);
+
+  // Scroll sidebar to show new item
+  const sidebar = item.closest('.sidebar');
+  if (sidebar) setTimeout(() => item.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 50);
+}
+
+function toggleDetail(num, item) {
+  const detail = document.getElementById(`detail-${num}`);
+  const isOpen = detail.classList.contains('show');
+  // close all others
+  document.querySelectorAll('.exchange-detail.show').forEach(d => d.classList.remove('show'));
+  document.querySelectorAll('.exchange-item.active').forEach(i => i.classList.remove('active'));
+  if (!isOpen) {
+    detail.classList.add('show');
+    item.classList.add('active');
+  }
+}
+
+function closeDetail(num) {
+  document.getElementById(`detail-${num}`)?.classList.remove('show');
+  document.querySelector(`.exchange-item[data-num="${num}"]`)?.classList.remove('active');
+}
+
+// ─── END SESSION ──────────────────────────────────────────────────────────────
+async function endSession() {
+  if (!exchangeScores.length) { backToScenarios(); return; }
+  sessionActive = false;
+
+  document.getElementById('loading-overlay').classList.add('show');
+  document.getElementById('roleplay-screen').style.display = 'none';
+
+  const avg = Math.round(exchangeScores.reduce((a,b) => a+(b.score||0),0) / exchangeScores.length);
+  const best = [...exchangeScores].sort((a,b)=>b.score-a.score)[0]?.grade||'B';
+
+  // Save progress
+  const prev = allProgress[currentScenario.id];
+  allProgress[currentScenario.id] = {
+    bestScore: prev ? Math.max(prev.bestScore, avg) : avg,
+    attempts: (prev?.attempts || 0) + 1,
+    lastGrade: best
+  };
+  saveProgress();
+
+  // Fire xAPI completed + SCORM
+  const passed = avg >= XAPI_CONFIG.passMark;
+  xAPI.completed(currentScenario, avg, exchangeScores.length, passed, exchangeScores);
+  SCORM.complete(avg, passed);
+
+  const emoji = { A:'🏆', B:'👍', C:'📈', D:'💪' };
+  document.getElementById('summary-icon').textContent = emoji[best] || '📊';
+  document.getElementById('summary-title').textContent = avg>=85?'Excellent Session!':avg>=70?'Good Work!':avg>=55?'Getting There':'Room to Grow';
+  document.getElementById('summary-sub').textContent = `${exchangeScores.length} exchange${exchangeScores.length!==1?'s':''} with ${currentScenario.dealerName}`;
+  document.getElementById('final-score').textContent = avg;
+  document.getElementById('final-score-wt').textContent = `out of 100 · avg of ${exchangeScores.length} exchange${exchangeScores.length!==1?'s':''}`;
+  document.getElementById('exchanges-count').textContent = exchangeScores.length;
+  document.getElementById('top-grade').textContent = best;
+
+  renderAllProgress();
+
+  // Fetch takeaways async — show screen first
+  document.getElementById('loading-overlay').classList.remove('show');
+  document.getElementById('summary-screen').style.display = 'block';
+
+  const takeaways = await generateTakeaways(avg);
+  document.getElementById('takeaway-list').innerHTML = takeaways.map(t=>`<li>${t}</li>`).join('');
+}
+
+function renderAllProgress() {
+  const rows = SCENARIOS.map(s => {
+    const p = allProgress[s.id];
+    if (!p) {
+      return `<div class="progress-row"><span class="progress-row-name">${s.title}</span><span class="progress-row-badge status-new" style="background:rgba(108,113,122,0.08);color:#6C717A;border:1px solid rgba(108,113,122,0.2)">Not started</span></div>`;
+    }
+    const color  = p.bestScore >= 80 ? '#008540' : p.bestScore >= 60 ? '#AC6502' : '#D6030A';
+    const bg     = p.bestScore >= 80 ? 'rgba(0,133,64,0.08)'  : p.bestScore >= 60 ? 'rgba(172,101,2,0.08)'  : 'rgba(214,3,10,0.06)';
+    const border = p.bestScore >= 80 ? 'rgba(0,133,64,0.2)'   : p.bestScore >= 60 ? 'rgba(172,101,2,0.2)'   : 'rgba(214,3,10,0.18)';
+    return `<div class="progress-row"><span class="progress-row-name">${s.title}</span><span class="progress-row-score">${p.bestScore}/100</span><span class="progress-row-badge" style="background:${bg};color:${color};border:1px solid ${border}">${p.attempts} attempt${p.attempts>1?'s':''}</span></div>`;
+  }).join('');
+  document.getElementById('all-progress-rows').innerHTML = rows;
+}
+
+async function generateTakeaways(avg) {
+  try {
+    const summary = exchangeScores.map((e,i)=>`Exchange ${i+1}: Grade ${e.grade}, Score ${e.score}. Improve: ${e.improve}`).join('\n');
+    const r = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 400, messages: [{
+        role: 'user',
+        content: `You are a UACC sales coach. Give 3–4 specific, actionable takeaways for this rep based on their roleplay session with "${currentScenario.dealerName}" (${currentScenario.title}).
+
+Goal: ${currentScenario.goal}
+Average score: ${avg}/100
+Exchanges:
+${summary}
+
+Write each takeaway using "you" to address the rep directly. Return ONLY a JSON array of 3-4 short strings. No markdown.`
+      }] })
+    });
+    const d = await r.json();
+    return JSON.parse((d.content?.[0]?.text||'[]').replace(/```json|```/g,'').trim());
+  } catch(e) {
+    return [
+      'You should lead with the net check dollar difference before explaining anything about the customer profile.',
+      'When dealers push back, use a specific example from a nearby dealer — "your neighbor sent us a deal like this and netted X."',
+      'Always close with one low-commitment ask: "Just click it over on your next one — nothing to lose."'
+    ];
+  }
+}
+
+// ─── NAVIGATION ───────────────────────────────────────────────────────────────
+function backToScenarios() {
+  sessionActive = false;
+  document.getElementById('roleplay-screen').style.display = 'none';
+  document.getElementById('summary-screen').style.display = 'none';
+  document.getElementById('scenario-screen').style.display = 'block';
+  renderScenarios(); // refresh progress rings
+}
+
+function retryScenario() {
+  const id = currentScenario.id;
+  document.getElementById('summary-screen').style.display = 'none';
+  startScenario(id);
+}
+
+// ─── TIPS / INPUT ─────────────────────────────────────────────────────────────
+function insertTip(phrase) {
+  const input = document.getElementById('chat-input');
+  const before = input.value.substring(0, input.selectionStart);
+  const after = input.value.substring(input.selectionStart);
+  input.value = before + (before.length && !before.endsWith(' ') ? ' ' : '') + phrase + ' ' + after;
+  input.focus(); autoResize(input);
+}
+
+// ─── VOICE INPUT ──────────────────────────────────────────────────────────────
+let recognition = null;
+let isRecording = false;
+
+function initVoice() {
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRecognition) return null;
+
+  const r = new SpeechRecognition();
+  r.continuous = false;
+  r.interimResults = true;
+  r.lang = 'en-US';
+
+  r.onstart = () => {
+    isRecording = true;
+    const btn = document.getElementById('mic-btn');
+    btn.classList.add('recording');
+    btn.title = 'Recording… click to stop';
+    // swap to stop icon
+    btn.querySelector('svg').innerHTML = '<path d="M6 6h12v12H6z"/>';
+    document.getElementById('input-hint').textContent = '🔴 Listening… speak your response, then click mic to stop';
+  };
+
+  r.onresult = (e) => {
+    const input = document.getElementById('chat-input');
+    let interim = '', final = '';
+    for (let i = e.resultIndex; i < e.results.length; i++) {
+      const t = e.results[i][0].transcript;
+      if (e.results[i].isFinal) final += t;
+      else interim += t;
+    }
+    // Show interim as placeholder feel, commit final
+    if (final) {
+      input.value = (input.value + ' ' + final).trim();
+      autoResize(input);
+    } else if (interim) {
+      input.placeholder = interim;
+    }
+  };
+
+  r.onerror = (e) => {
+    stopRecording();
+    if (e.error === 'not-allowed') {
+      document.getElementById('input-hint').textContent = '⚠️ Microphone access denied — please allow mic access in your browser settings';
+    } else if (e.error !== 'no-speech') {
+      document.getElementById('input-hint').textContent = '⚠️ Voice input error — please type your response';
+    }
+  };
+
+  r.onend = () => {
+    stopRecording();
+  };
+
+  return r;
+}
+
+function toggleVoice() {
+  if (!isRecording) {
+    startRecording();
+  } else {
+    stopRecording();
+  }
+}
+
+function startRecording() {
+  if (!recognition) recognition = initVoice();
+  if (!recognition) {
+    document.getElementById('input-hint').textContent = '⚠️ Voice input not supported in this browser — please use Chrome or Edge';
+    return;
+  }
+  const input = document.getElementById('chat-input');
+  input.placeholder = 'Listening…';
+  try { recognition.start(); } catch(e) {}
+}
+
+function stopRecording() {
+  isRecording = false;
+  const btn = document.getElementById('mic-btn');
+  btn.classList.remove('recording');
+  btn.title = 'Voice input';
+  // restore mic icon
+  btn.querySelector('svg').innerHTML = '<path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.91-3c-.49 0-.9.36-.98.85C16.52 14.2 14.47 16 12 16s-4.52-1.8-4.93-4.15c-.08-.49-.49-.85-.98-.85-.61 0-1.09.54-1 1.14.49 3 2.89 5.35 5.91 5.78V20c0 .55.45 1 1 1s1-.45 1-1v-2.08c3.02-.43 5.42-2.78 5.91-5.78.1-.6-.39-1.14-1-1.14z"/>';
+  document.getElementById('chat-input').placeholder = 'Type your response or use the mic…';
+  document.getElementById('input-hint').textContent = 'Enter to send · Shift+Enter for new line · 🎤 mic to speak';
+  try { if (recognition) recognition.stop(); } catch(e) {}
+}
+
+function handleKey(e) { if (e.key==='Enter'&&!e.shiftKey) { e.preventDefault(); sendMessage(); } }
+function autoResize(el) { el.style.height='auto'; el.style.height=Math.min(el.scrollHeight,130)+'px'; }
+
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+renderScenarios();
+</script>
+</body>
+</html>
